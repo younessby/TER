@@ -2,7 +2,8 @@
 FC = gfortran
 
 # Flags de compilation, incluant -g pour les informations de débogage
-FFLAGS = -O2 -g
+FFLAGS = -O2 -g -fPIE -fcheck=all -Wall 
+
 
 # Nom du programme exécutable
 PROGRAM = programme

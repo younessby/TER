@@ -169,7 +169,7 @@ contains
             new_tri%p3=tri%p1
         end if  
 
-        if(tri%p1%indice==points%indice) then
+        if(tri%p3%indice==points%indice) then
             new_tri%indice=tri%indice
             new_tri%p1=tri%p3
             new_tri%p2=tri%p1
@@ -182,45 +182,67 @@ contains
         type(edge),dimension(:),intent(in)::arret
         type(edge),intent(out):: edge1,edge2
         type(point),intent(in)::pointd
-        type(edge)::artt
+        type(edge)::artt,artt2
+        type(triangle)::new_tri
         integer::i,j
 
         j=0
         do i=1,3
             artt=arret(i)
+            print*,"je suis dans subroutine ",pointd%indice,artt%indice,artt%indice
             if(artt%p1%indice==pointd%indice .or. artt%p2%indice==pointd%indice) then
                 j=j+1 
                 if(j==1) then 
-                    edge1=artt
+                    edge1%p1=artt%p1
+                    edge1%p2=artt%p2
+                    edge1%indice=artt%indice
+
                 end if
                 if(j==2) then 
-                    edge2=artt
+                    edge2%p1=artt%p1
+                    edge2%p2=artt%p2
+                    edge2%indice=artt%indice
                 end if 
             end if 
         end do
+        if (j==0) then 
+            print*,"hhhhhhhhhhhhhhhhhhhhhhh"
+        end if 
+
+        if (edge1%p1%indice/=pointd%indice) then
+            if(edge1%p2%indice/=pointd%indice)then
+                print*,'errreru des arrt trouver 205'
+                print*,edge1%p1%indice,edge1%p2%indice
+                print*,edge2%p1%indice,edge2%p2%indice
+                print*,pointd%indice
+            end if 
+            artt=edge1
+            edge1=edge2
+            edge2=artt
+        end if 
     end subroutine trouver_ar
 
 
 
-    subroutine trouver_ar2(tri,arret,edge1,pointd,edge2) 
-        type(triangle),intent(in)::tri
-        type(edge),dimension(:),intent(in)::arret
-        type(edge),intent(out):: edge2
-        type(edge),intent(in):: edge1
-        type(point),intent(in)::pointd
-        type(edge)::artt
-        integer::i,j
+    ! subroutine trouver_ar2(tri,arret,edge1,pointd,edge2) 
+    !     type(triangle),intent(in)::tri
+    !     type(edge),dimension(:),intent(in)::arret
+    !     type(edge),intent(out):: edge2
+    !     type(edge),intent(in):: edge1
+    !     type(point),intent(in)::pointd
+    !     type(edge)::artt
+    !     integer::i,j
 
-        j=0
-        do i=1,3
-            artt=arret(i)
-            if(artt%p1%indice==pointd%indice .or. artt%p2%indice==pointd%indice) then
-                if (artt%indice/=edge1%indice) then 
-                    edge2=artt
-                end if 
-            end if 
-        end do
-    end subroutine trouver_ar2
+    !     j=0
+    !     do i=1,3
+    !         artt=arret(i)
+    !         if(artt%p1%indice==pointd%indice .or. artt%p2%indice==pointd%indice) then
+    !             if (artt%indice/=edge1%indice) then 
+    !                 edge2=artt
+    !             end if 
+    !         end if 
+    !     end do
+    ! end subroutine trouver_ar2
 
     
 end module triangles

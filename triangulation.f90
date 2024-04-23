@@ -159,15 +159,15 @@ subroutine connectivite(lespoints,lestriangles,lesaretes,aretes_maille,maille_ar
     tab=0
     nb_edge=0
     do i=1,nb_tri
-        pp1=lestriangles(i)%p1%indice-3
-        pp2=lestriangles(i)%p2%indice-3
-        pp3=lestriangles(i)%p3%indice-3
+        pp1=lestriangles(i)%p1%indice
+        pp2=lestriangles(i)%p2%indice
+        pp3=lestriangles(i)%p3%indice
         maille_point(pp1,1)=maille_point(pp1,1)+1
-        maille_point(pp1,maille_point(pp1,1))=i
+        maille_point(pp1,maille_point(pp1,1)+1)=i
         maille_point(pp2,1)=maille_point(pp2,1)+1
-        maille_point(pp2,maille_point(pp2,1))=i
+        maille_point(pp2,maille_point(pp2,1)+1)=i
         maille_point(pp3,1)=maille_point(pp3,1)+1
-        maille_point(pp3,maille_point(pp3,1))=i
+        maille_point(pp3,maille_point(pp3,1)+1)=i
     end do 
 
 
