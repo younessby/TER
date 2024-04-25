@@ -27,7 +27,7 @@ program programme
 
     
     !nombre des points pour chaque intervalle 
-    np=4
+    np=10
     n=np*np
     nb_point=n+3
     ! Bornes de l'intervalle
@@ -36,9 +36,10 @@ program programme
     ymin = -5.0
     ymax = 5.0
 
-    allocate(lespoints(nb_point))
+    allocate(lespoints(400000))
     !initialiser la nuage de point
-    call nuage(xmax, xmin, ymax, ymin, np, lespoints)
+    !call nuage(xmax, xmin, ymax, ymin, np, lespoints)
+    call nuage_trigo_v2(nb_point,lespoints,ymax,37)
    ! print*,"c'est bon"
     super = SuperTriangle(lespoints)
     call construction_points(lespoints(1),super%p1%x,super%p1%y,1)
@@ -76,12 +77,11 @@ program programme
             .and. triangles_tri_super(i)%p3%indice/=3)then
                 nb_tri1=nb_tri1+1
                 triangles_tri(nb_tri1)=triangles_tri_super(i)
-                 print*,triangles_tri(nb_tri1)%p1%indice,triangles_tri(nb_tri1)%p2%indice,&
-                 triangles_tri(nb_tri1)%p3%indice,nb_tri1
+                ! print*,triangles_tri(nb_tri1)%p1%indice,triangles_tri(nb_tri1)%p2%indice,&triangles_tri(nb_tri1)%p3%indice,nb_tri1
             end if
         end do 
 
-    call save_vtk(triangles_tri(1:nb_tri1),lespoints,"test.vtk",n+3,nb_tri1)
+    call save_vtk(triangles_tri(1:nb_tri1),lespoints,"test.vtk",nb_point,nb_tri1)
 !     allocate(point_ajouter(nb_point))
 !     nb_point_aj=0
 !         do i=1,nb_tri1
@@ -232,7 +232,7 @@ deallocate(triangles_tri,triangles_tri_super)
         aretes_delaunay(i)=lesaretes(i)
     end do 
     deallocate(lesaretes)
-    print *, "je suis ici"
+  !  print *, "je suis ici"
     
     voronoi=0
     do i=4,nb_point
@@ -250,15 +250,15 @@ deallocate(triangles_tri,triangles_tri_super)
                 voronoi_entre(j)=lescentres(maille_point(i,j+1))
                 !write(*,'(i3)', advance='no')voronoi_entre(j)%indice
             end do
-            write(*,*) "" 
+            !write(*,*) "" 
             call sortPointsCCW(lespoints(i),voronoi_entre,voronoi_sort)
             !print*,"point ",i
             write(*,'(i3)', advance='no')maille_point(i,1)
             do j=1,size(voronoi_entre)
-                write(*,'(i3)', advance='no')voronoi_sort(j)%indice-1
+              !  write(*,'(i3)', advance='no')voronoi_sort(j)%indice-1
                 voronoi(i,j+1)=voronoi_sort(j)%indice-1
             end do 
-            write(*,*) "" 
+           ! write(*,*) "" 
             deallocate(voronoi_entre,voronoi_sort)
         end if 
         if(bord .eqv. .true.) then
@@ -278,15 +278,15 @@ deallocate(triangles_tri,triangles_tri_super)
                     print*,"j'ai un probleme au bord ligne 275"
                 end if 
             end do 
-            write(*,*) "" 
+          !  write(*,*) "" 
             call sortPointsCCW(lespoints(i),voronoi_entre,voronoi_sort)
             !print*,"point ",i
-            write(*,'(i3)', advance='no')maille_point(i,1)
+           ! write(*,'(i3)', advance='no')maille_point(i,1)
             do j=1,size(voronoi_entre)
-                write(*,'(i3)', advance='no')voronoi_sort(j)%indice-1
+               ! write(*,'(i3)', advance='no')voronoi_sort(j)%indice-1
                 voronoi(i,j+1)=voronoi_sort(j)%indice-1
             end do 
-            write(*,*) "" 
+          !  write(*,*) "" 
             deallocate(voronoi_entre,voronoi_sort)
 
         end if 
@@ -408,13 +408,47 @@ deallocate(triangles_tri,triangles_tri_super)
    ! Write vertex coordinates
    write(10, '(A,I0,A)') "POINTS ", nb_tri1+size(edge_bord), " float"
    do i = 1, nb_tri1+size(edge_bord)
-       write(10, '(2(F7.4,1X),F4.1)') lescentres(i)%x , lescentres(i)%y , 0.00000000
+       write(10, '(2(F10.4,1X),F4.1)') lescentres(i)%x , lescentres(i)%y , 0.00000000
    end do
    ! Write cell connectivity
    write(10, '(A,I0,A,I0)') "POLYGONS ", nb_point-3, " ", nb_cel
    do i = 4,nb_point
         do j=1,voronoi(i,1)+1
             write(10, '(4(I0,1X))', ADVANCE='NO') voronoi(i,j)
+        end do 
+        write(10,*)
+   end do
+   ! Close the file
+   close(unit=10)
+
+   !##############"""""""""groupe CDO
+   open(unit=10, file="meshD.txt", status='replace')    
+   write(10,*) nb_point-3
+   print*,nb_point-3
+   do i=4,nb_point 
+       write(10,*) lespoints(i)%x,lespoints(i)%y
+       print*,lespoints(i)%x,lespoints(i)%y
+   end do
+
+   write(10,*) nb_tri1
+   do i=1,nb_tri1
+       write(10,'(1(I0,1X))') 3
+       write(10,'(3(I0,1X))') tri_delaunay(i)%p1%indice-3,tri_delaunay(i)%p2%indice-3&
+       ,tri_delaunay(i)%p3%indice-3
+   end do 
+   close(10)
+
+   open(unit=10, file="meshv.txt", status='replace')    
+   write(10,*) nb_tri1+size(edge_bord)
+   do i=1,nb_tri1+size(edge_bord)
+       write(10,*) lescentres(i)%x,lescentres(i)%y
+   end do
+
+   write(10,*) nb_point-3
+    do i = 4,nb_point
+        write(10, '(4(I0,1X))') voronoi(i,1)
+        do j=2,voronoi(i,1)+1
+            write(10, '(4(I0,1X))', ADVANCE='NO') voronoi(i,j)+1
         end do 
         write(10,*)
    end do

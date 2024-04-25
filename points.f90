@@ -223,4 +223,47 @@ contains
           midpoint = findMidpoint(p1, p2)
         endif
       end function getMidpointOfObtuseSide
+
+
+      subroutine nuage_trigo_v2(n_points, les_points, R, nb_couches)
+        implicit none
+        integer, intent(out) :: n_points
+        !type(point), dimension(:), allocatable, intent(out) :: les_points
+        type(point), dimension(:),intent(out) :: les_points
+        integer, intent(in) :: nb_couches
+        integer :: j, i, k, n_points_couche
+        real(8) :: R, zero
+        real(8) :: radius, dr, theta, dtheta
+        real(8), parameter :: pi = acos(-1.0)
+    
+        ! calcul du nombre de points total ------------
+        n_points = 0
+        do k = 1, nb_couches
+            n_points = n_points + 8 * k
+        end do
+        n_points = n_points  + 4
+        !------------------------------------------------
+    
+        !allocate(les_points(n_points))
+        zero = 0
+        dr = R / nb_couches
+        dtheta = pi / 6
+        radius = dr
+        call construction_points(les_points(4), zero, zero, 4)
+        i = 5
+        k = 0
+        do while (radius <= R)
+            n_points_couche = 8 * (k + 1)
+            do j = 1, n_points_couche
+                theta = j * 2 * pi / n_points_couche + pi / (k + 1)
+                call construction_points(les_points(i), radius * cos(theta), radius * sin(theta), i)
+                i = i + 1
+            end do
+            radius = radius + dr
+            k = k + 1
+        end do
+        print*,"skd,vkdfq,k,qef",i-1,n_points
+    
+    end subroutine nuage_trigo_v2
+
 end module points
